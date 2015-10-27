@@ -12,7 +12,7 @@ ENDIF (WIN32 AND MSVC)
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR})
 
-SET ( 	ply_HDRS
+SET (	ply_HDRS
 			ply.h
 )
 SET( 	ply_SRCS
@@ -35,4 +35,6 @@ ADD_EXECUTABLE( plytest
 				      )
 TARGET_LINK_LIBRARIES( plytest ply ) 
 
+INSTALL(TARGETS ply
+				LIBRARY DESTINATION lib)
 
