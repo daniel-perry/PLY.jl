@@ -9,7 +9,7 @@ Greg Turk, March 1994
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <ply.h>
+#include <plyfile.h>
 
 /* user's vertex and face definitions for a polygonal object */
 

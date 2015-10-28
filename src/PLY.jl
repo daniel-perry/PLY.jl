@@ -9,6 +9,7 @@ function plyopen(fn::ASCIIString)
 	println(typeof(elem_names))
 	file_type = zeros(Int32,1)
 	version = [0.0f0]
+	dlsym(dlopen("libply"), :ply_open)
 	fh = ccall( (:ply_open_for_reading, "libply"), 
 	            Ptr{Void}, 
 							(Ptr{Uint8}, Ptr{Int32}, Ptr{Ptr{Ptr{Uint8}}}, Ptr{Int32}, Ptr{Float32}),
