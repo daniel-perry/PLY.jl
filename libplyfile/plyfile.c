@@ -677,6 +677,53 @@ void ply_put_obj_info(PlyFile *plyfile, char *obj_info)
 /*************/
 
 
+void ply_get_vertex_dim(PlyFile * ply, size_t * nelems, size_t * dim, int * elemtype);
+{
+	const char * elem_name = "vertex";
+  PlyProperty **plist;
+  int nprops;
+	int j;
+	
+  plist = ply_get_element_description (ply, elem_name, nelems, &nprops);
+
+
+	ply_get_property (ply, elem_name, &vert_props[0]);
+	ply_get_property (ply, elem_name, &vert_props[1]);
+	ply_get_property (ply, elem_name, &vert_props[2]);
+	
+}
+
+void ply_get_vertices(PlyFile * ply, size_t nelems, size_t dim, void ** data)
+{
+	int j;
+
+	/* grab all the vertex elements */
+	for (j = 0; j < nelems; j++) {
+
+		/* grab and element from the file */
+		vlist[j] = (Vertex *) malloc (sizeof (Vertex));
+		ply_get_element (ply, (void *) data[j]);
+
+		/* print out vertex x,y,z for debugging */
+		printf ("vertex: %g %g %g\n", data[j][0], data[j][1], data[j][2]);
+	}
+}
+
+
+/*
+void ply_get_face_dim(PlyFile * ply, size_t * nelems, size_t * dim)
+{
+	const char * elem_name = "face";
+}
+
+void ply_get_faces(PlyFile * ply, int filetype, void ** data)
+{
+}
+*/
+
+
+
+
 
 /******************************************************************************
 Given a file pointer, get ready to read PLY data from the file.

@@ -133,6 +133,43 @@ extern char *my_alloc();
 
 /*** delcaration of routines ***/
 
+
+/*** utility routines added for ease of use when working with vertices and faces only ***/
+/**
+ * input:
+ * @param ply - the ply file struct
+ *
+ * output:
+ * @param nelems - number of vertex elements
+ * @param dim - dimension of the vertex elements
+ * @param elemtype - type of element
+ */
+extern void ply_get_vertex_dim(PlyFile * ply, size_t * nelems, size_t * dim, int * elemtype);
+/**
+ * input:
+ * @param ply - the ply file struct
+ * @param nelems - number of vertices to read
+ * @param dim - dimension of the vertices
+ * output:
+ * @param data - pointer to memory to fill with vertex data, should have dimensions (nelem x dim)
+ */
+extern void ply_get_vertices(PlyFile * ply, size_t nelems, size_t dim, void ** data)
+
+/**
+ * @param ply - the ply file struct
+ * @param nelems - number of face elements
+ * @param dim - dimension of the face elements
+ */
+//extern void ply_get_face_dim(PlyFile * ply, size_t * nelems, size_t * dim);
+/**
+ * @param ply - the ply file struct
+ * @param filetype - type of the face elements (ie float, double, etc)
+ * @param data - pointer to memory to fill with face data
+ */
+//extern void ply_get_faces(PlyFile * ply, int filetype, void ** data);
+
+
+/*** standard ply routines ***/
 extern PlyFile *ply_write(FILE *, int, char **, int);
 extern PlyFile *ply_open_for_writing(char *, int, char **, int, float *);
 extern void ply_describe_element(PlyFile *, char *, int, int, PlyProperty *);
