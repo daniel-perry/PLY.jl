@@ -93,6 +93,7 @@ main()
 #if 1
   /* read a PLY file */
   read_test();
+  read_test2();
 #endif
 
 }
@@ -274,109 +275,98 @@ read_test()
 
 read_test2()
 {
-  int i,j,k;
   PlyFile *ply;
-  int nelems;
   char **elist;
   int file_type;
   float version;
-  int nprops;
-  int num_elems;
   PlyProperty **plist;
-  Vertex **vlist;
-  Face **flist;
-  char *elem_name;
-  int num_comments;
-  char **comments;
-  int num_obj_info;
-  char **obj_info;
+
+  int nelems;
+  int nprops;
+	int j;
+
+	float * vertices;
+	float * normals;
+	int datatype;
+	void ** data;
+	float ** floatdata;
 
   /* open a PLY file for reading */
-  ply = ply_open_for_reading("test", &nelems, &elist, &file_type, &version);
+  ply = ply_open_for_reading("facemodel", &nelems, &elist, &file_type, &version);
 
   /* print what we found out about the file */
   printf ("version %f\n", version);
   printf ("type %d\n", file_type);
 
-	ply_get_vertex_dim(ply, nelems, dim, elemtype);
+	plist = ply_get_vertex_properties(ply, &nelems, &nprops);
 
-  /* go through each kind of element that we learned is in the file */
-  /* and read them */
+	printf("i: name, external_type, internal_type, offset; is_list, count_external, count_internal, count_offset");
+	for (j=0; j<nprops; ++j) {
+		printf("%d: %s , %d, %d, %d; %d, %d, %d, %d\n",
+		  j,
+		  plist[j]->name,
+			plist[j]->external_type,
+			plist[j]->internal_type,
+			plist[j]->offset,
+			plist[j]->is_list,
+			plist[j]->count_external,
+			plist[j]->count_internal,
+			plist[j]->count_offset);
+	}
 
-  for (i = 0; i < nelems; i++) {
 
-    /* get the description of the first element */
-    elem_name = elist[i];
-    plist = ply_get_element_description (ply, elem_name, &num_elems, &nprops);
+	if(nprops >=3)
+	{
+		datatype = plist[0]->external_type;
+		for(j=0; j<3; ++j){
+			if(plist[j]->external_type != datatype){
+				fprintf(stderr, "error: first three vertex types are not the same");
+				return -1;
+			}
+		}
 
-    /* print the name of the element, for debugging */
-    printf ("element %s %d\n", elem_name, num_elems);
+		if(datatype == PLY_FLOAT){
+			floatdata = (float **) malloc(sizeof(float*)*nelems);
+			for(j=0;j<nelems; ++j){
+				floatdata[j] = (float *) malloc(sizeof(float)*3);
+			}
+			data = (void **) floatdata;
+			ply_get_vertices(ply, nelems, datatype, data);
 
-    /* if we're on vertex elements, read them in */
-    if (equal_strings ("vertex", elem_name)) {
+			printf("first 10 elements..\n");
+			for(j=0;j<10;++j){
+				printf("%d: %f,%f,%f\n",j,floatdata[j][0],floatdata[j][1],floatdata[j][2]);
+			}
+		}
 
-      /* create a vertex list to hold all the vertices */
-      vlist = (Vertex **) malloc(sizeof(Vertex *) * num_elems);
+	}
 
-      /* set up for getting vertex elements */
+	if(nprops >=6)
+	{
+		datatype = plist[3]->external_type;
+		for(j=0; j<3; ++j){
+			if(plist[3+j]->external_type != datatype){
+				fprintf(stderr, "error: first three vertex normal types are not the same");
+				return -1;
+			}
+		}
 
-      ply_get_property (ply, elem_name, &vert_props[0]);
-      ply_get_property (ply, elem_name, &vert_props[1]);
-      ply_get_property (ply, elem_name, &vert_props[2]);
+		if(datatype == PLY_FLOAT){
+			floatdata = (float **) malloc(sizeof(float*)*nelems);
+			for(j=0;j<nelems; ++j){
+				floatdata[j] = (float *) malloc(sizeof(float)*3);
+			}
+			data = (void **) floatdata;
+			ply_get_vertex_normals(ply, nelems, datatype, data);
 
-      /* grab all the vertex elements */
-      for (j = 0; j < num_elems; j++) {
+			printf("first 10 elements..\n");
+			for(j=0;j<10;++j){
+				printf("%d: %f,%f,%f\n",j,floatdata[j][0],floatdata[j][1],floatdata[j][2]);
+			}
+		}
 
-        /* grab and element from the file */
-        vlist[j] = (Vertex *) malloc (sizeof (Vertex));
-        ply_get_element (ply, (void *) vlist[j]);
-
-        /* print out vertex x,y,z for debugging */
-        printf ("vertex: %g %g %g\n", vlist[j]->x, vlist[j]->y, vlist[j]->z);
-      }
-    }
-
-    /* if we're on face elements, read them in */
-    if (equal_strings ("face", elem_name)) {
-
-      /* create a list to hold all the face elements */
-      flist = (Face **) malloc (sizeof (Face *) * num_elems);
-
-      /* set up for getting face elements */
-
-      ply_get_property (ply, elem_name, &face_props[0]);
-      ply_get_property (ply, elem_name, &face_props[1]);
-
-      /* grab all the face elements */
-      for (j = 0; j < num_elems; j++) {
-
-        /* grab and element from the file */
-        flist[j] = (Face *) malloc (sizeof (Face));
-        ply_get_element (ply, (void *) flist[j]);
-
-        /* print out face info, for debugging */
-        printf ("face: %d, list = ", flist[j]->intensity);
-        for (k = 0; k < flist[j]->nverts; k++)
-          printf ("%d ", flist[j]->verts[k]);
-        printf ("\n");
-      }
-    }
-    
-    /* print out the properties we got, for debugging */
-    for (j = 0; j < nprops; j++)
-      printf ("property %s\n", plist[j]->name);
-  }
-
-  /* grab and print out the comments in the file */
-  comments = ply_get_comments (ply, &num_comments);
-  for (i = 0; i < num_comments; i++)
-    printf ("comment = '%s'\n", comments[i]);
-
-  /* grab and print out the object information */
-  obj_info = ply_get_obj_info (ply, &num_obj_info);
-  for (i = 0; i < num_obj_info; i++)
-    printf ("obj_info = '%s'\n", obj_info[i]);
-
+	}
+	
   /* close the PLY file */
   ply_close (ply);
 }

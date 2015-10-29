@@ -63,6 +63,27 @@ extern "C" {
 #define  PLY_SCALAR  0
 #define  PLY_LIST    1
 
+/** macro helper for printing type name */
+#define CASE_PLY_TYPE(PLY_TYPE,CTYPE) \
+case PLY_TYPE :\
+   return #CTYPE;
+/** utility for printing type name at runtime */
+const char * get_typename(int type) {
+  switch(type) {
+		CASE_PLY_TYPE(PLY_CHAR,PLY_CHAR_CTYPE)
+		CASE_PLY_TYPE(PLY_SHORT,PLY_SHORT_CTYPE)
+		CASE_PLY_TYPE(PLY_INT,PLY_INT_CTYPE)
+		CASE_PLY_TYPE(PLY_UCHAR,PLY_UCHAR_CTYPE)
+		CASE_PLY_TYPE(PLY_USHORT,PLY_USHORT_CTYPE)
+		CASE_PLY_TYPE(PLY_UINT,PLY_UINT_CTYPE)
+		CASE_PLY_TYPE(PLY_FLOAT,float)
+		CASE_PLY_TYPE(PLY_DOUBLE,PLY_DOUBLE_CTYPE)
+		default:
+			fprintf(stderr, "ERROR: type indicative value (%d) out of range", type);
+			return NULL;
+	}
+}
+
 
 typedef struct PlyProperty {    /* description of a property */
 
@@ -133,7 +154,6 @@ extern char *my_alloc();
 
 /*** delcaration of routines ***/
 
-
 /*** utility routines added for ease of use when working with vertices and faces only ***/
 /**
  * input:
@@ -141,32 +161,22 @@ extern char *my_alloc();
  *
  * output:
  * @param nelems - number of vertex elements
- * @param dim - dimension of the vertex elements
- * @param elemtype - type of element
+ * @param nprops - total properties available related to the vertex elements
+ * @return list of PlyProperty objects detailing property types, etc.
  */
-extern void ply_get_vertex_dim(PlyFile * ply, size_t * nelems, size_t * dim, int * elemtype);
+extern PlyProperty ** ply_get_vertex_properties(PlyFile * ply, int * nelems, int * nprops);
+
 /**
  * input:
  * @param ply - the ply file struct
  * @param nelems - number of vertices to read
- * @param dim - dimension of the vertices
  * output:
  * @param data - pointer to memory to fill with vertex data, should have dimensions (nelem x dim)
  */
-extern void ply_get_vertices(PlyFile * ply, size_t nelems, size_t dim, void ** data)
-
-/**
- * @param ply - the ply file struct
- * @param nelems - number of face elements
- * @param dim - dimension of the face elements
- */
-//extern void ply_get_face_dim(PlyFile * ply, size_t * nelems, size_t * dim);
-/**
- * @param ply - the ply file struct
- * @param filetype - type of the face elements (ie float, double, etc)
- * @param data - pointer to memory to fill with face data
- */
-//extern void ply_get_faces(PlyFile * ply, int filetype, void ** data);
+extern void ply_get_vertices(PlyFile * ply, int nelems, int datatype, void ** data);
+extern void ply_get_vertices_float(PlyFile * ply, int nelems, float ** data);
+extern void ply_get_vertex_normals(PlyFile * ply, int nelems, int datatype, void ** data);
+extern void ply_get_vertex_normals_float(PlyFile * ply, int nelems, float ** data);
 
 
 /*** standard ply routines ***/
@@ -185,6 +195,7 @@ extern PlyFile *ply_open_for_reading( char *, int *, char ***, int *, float *);
 extern PlyProperty **ply_get_element_description(PlyFile *, char *, int*, int*);
 extern void ply_get_element_setup( PlyFile *, char *, int, PlyProperty *);
 extern void ply_get_property(PlyFile *, char *, PlyProperty *);
+extern void ply_reset_property(PlyFile *, char *, PlyProperty *);
 extern PlyOtherProp *ply_get_other_properties(PlyFile *, char *, int);
 extern ply_get_element(PlyFile *, void *);
 extern char **ply_get_comments(PlyFile *, int *);

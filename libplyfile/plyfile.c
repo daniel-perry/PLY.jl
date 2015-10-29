@@ -676,53 +676,113 @@ void ply_put_obj_info(PlyFile *plyfile, char *obj_info)
 /*  Reading  */
 /*************/
 
+typedef struct PlyVertex {
+  float x,y,z,nx,ny,nz;             /* the usual 3-space position of a vertex with normal */
+} PlyVertex;
 
-void ply_get_vertex_dim(PlyFile * ply, size_t * nelems, size_t * dim, int * elemtype);
+typedef struct PlyFace {
+  unsigned char intensity; /* this user attaches intensity to faces */
+  unsigned char nverts;    /* number of vertex indices in list */
+  int *verts;              /* vertex index list */
+} PlyFace;
+
+
+PlyProperty ** ply_get_vertex_properties(PlyFile * ply, int * nelems, int * nprops)
 {
-	const char * elem_name = "vertex";
+	char * elem_name = "vertex";
   PlyProperty **plist;
-  int nprops;
 	int j;
 	
-  plist = ply_get_element_description (ply, elem_name, nelems, &nprops);
+  plist = ply_get_element_description (ply, elem_name, nelems, nprops);
 
+	return plist;
+}
+
+/** macro helper for calling the right function name */
+#define CASE_PLY_TYPE_CALL(FNAME,PLY_TYPE,CTYPE) \
+case PLY_TYPE:\
+   FNAME##CTYPE(ply,nelems,(CTYPE **) data);\
+	 break;
+
+void ply_get_vertices(PlyFile * ply, int nelems, int datatype, void ** data)
+{
+	switch(datatype){
+		CASE_PLY_TYPE_CALL(ply_get_vertices_,PLY_FLOAT,float)
+		default:
+			fprintf(stderr, "ERROR: unsupported data type (%s) ", get_typename(datatype));
+	}
+}
+
+void ply_get_vertices_float(PlyFile * ply, int nelems, float ** data)
+{
+	int j;
+  PlyVertex * plyvertex;
+	char * elem_name = "vertex";
+
+	PlyProperty vert_props[] = { /* list of property information for a vertex */
+		{"x", PLY_FLOAT, PLY_FLOAT, 0, 0, 0, 0, 0},
+		{"y", PLY_FLOAT, PLY_FLOAT, sizeof(float), 0, 0, 0, 0},
+		{"z", PLY_FLOAT, PLY_FLOAT, 2*sizeof(float), 0, 0, 0, 0},
+	};
 
 	ply_get_property (ply, elem_name, &vert_props[0]);
 	ply_get_property (ply, elem_name, &vert_props[1]);
 	ply_get_property (ply, elem_name, &vert_props[2]);
-	
-}
-
-void ply_get_vertices(PlyFile * ply, size_t nelems, size_t dim, void ** data)
-{
-	int j;
 
 	/* grab all the vertex elements */
 	for (j = 0; j < nelems; j++) {
-
 		/* grab and element from the file */
-		vlist[j] = (Vertex *) malloc (sizeof (Vertex));
 		ply_get_element (ply, (void *) data[j]);
 
 		/* print out vertex x,y,z for debugging */
-		printf ("vertex: %g %g %g\n", data[j][0], data[j][1], data[j][2]);
+		//printf ("vertex: %g %g %g\n", data[j][0], data[j][1], data[j][2]);
+	}
+
+	ply_reset_property (ply, elem_name, &vert_props[0]);
+	ply_reset_property (ply, elem_name, &vert_props[1]);
+	ply_reset_property (ply, elem_name, &vert_props[2]);
+}
+
+void ply_get_vertex_normals(PlyFile * ply, int nelems, int datatype, void ** data)
+{
+	switch(datatype){
+		CASE_PLY_TYPE_CALL(ply_get_vertex_normals_,PLY_FLOAT,float)
+		default:
+			fprintf(stderr, "ERROR: unsupported data type (%s) ", get_typename(datatype));
 	}
 }
 
-
-/*
-void ply_get_face_dim(PlyFile * ply, size_t * nelems, size_t * dim)
+void ply_get_vertex_normals_float(PlyFile * ply, int nelems, float ** data)
 {
-	const char * elem_name = "face";
+	int j;
+  PlyVertex * plyvertex;
+	char * elem_name = "vertex";
+	int start;
+	float norm;
+
+	PlyProperty vert_props[] = { /* list of property information for a vertex */
+		{"nx", PLY_FLOAT, PLY_FLOAT, 0, 0, 0, 0, 0},
+		{"ny", PLY_FLOAT, PLY_FLOAT, sizeof(float), 0, 0, 0, 0},
+		{"nz", PLY_FLOAT, PLY_FLOAT, 2*sizeof(float), 0, 0, 0, 0},
+	};
+
+	ply_get_property (ply, elem_name, &vert_props[0]);
+	ply_get_property (ply, elem_name, &vert_props[1]);
+	ply_get_property (ply, elem_name, &vert_props[2]);
+
+	/* grab all the vertex elements */
+	for (j = 0; j < nelems; j++) {
+		/* grab and element from the file */
+		ply_get_element (ply, (void *) data[j]);
+
+		/* print out vertex x,y,z for debugging */
+		//printf ("vertex normal: %g %g %g \n", data[j][0], data[j][1], data[j][2]);
+	}
+
+	ply_reset_property (ply, elem_name, &vert_props[0]);
+	ply_reset_property (ply, elem_name, &vert_props[1]);
+	ply_reset_property (ply, elem_name, &vert_props[2]);
 }
-
-void ply_get_faces(PlyFile * ply, int filetype, void ** data)
-{
-}
-*/
-
-
-
 
 
 /******************************************************************************
@@ -1023,6 +1083,42 @@ void ply_get_property(
   /* specify that the user wants this property */
   elem->store_prop[index] = STORE_PROP;
 }
+
+/**
+ * Opposite effect of ply_get_property()
+ */
+void ply_reset_property(
+  PlyFile *plyfile,
+  char *elem_name,
+  PlyProperty *prop
+)
+{
+  PlyElement *elem;
+  PlyProperty *prop_ptr;
+  int index;
+
+  /* find information about the element */
+  elem = find_element (plyfile, elem_name);
+  plyfile->which_elem = elem;
+
+  /* deposit the property information into the element's description */
+
+  prop_ptr = find_property (elem, prop->name, &index);
+  if (prop_ptr == NULL) {
+    fprintf (stderr, "Warning:  Can't find property '%s' in element '%s'\n",
+             prop->name, elem_name);
+    return;
+  }
+  prop_ptr->internal_type  = prop->internal_type;
+  prop_ptr->offset         = prop->offset;
+  prop_ptr->count_internal = prop->count_internal;
+  prop_ptr->count_offset   = prop->count_offset;
+
+  /* specify that the user doesn't want this property */
+  elem->store_prop[index] = DONT_STORE_PROP;
+}
+
+
 
 
 /******************************************************************************
