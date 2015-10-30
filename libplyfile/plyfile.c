@@ -676,18 +676,7 @@ void ply_put_obj_info(PlyFile *plyfile, char *obj_info)
 /*  Reading  */
 /*************/
 
-typedef struct PlyVertex {
-  float x,y,z,nx,ny,nz;             /* the usual 3-space position of a vertex with normal */
-} PlyVertex;
-
-typedef struct PlyFace {
-  unsigned char intensity; /* this user attaches intensity to faces */
-  unsigned char nverts;    /* number of vertex indices in list */
-  int *verts;              /* vertex index list */
-} PlyFace;
-
-
-PlyProperty ** ply_get_vertex_properties(PlyFile * ply, int * nelems, int * nprops)
+PlyProperty ** ply_get_vertex_properties(PlyFile * ply, int * nelems, int * nprops, int * datatype)
 {
 	char * elem_name = "vertex";
   PlyProperty **plist;
@@ -695,16 +684,19 @@ PlyProperty ** ply_get_vertex_properties(PlyFile * ply, int * nelems, int * npro
 	
   plist = ply_get_element_description (ply, elem_name, nelems, nprops);
 
+	(*datatype) = plist[0]->external_type;
+
 	return plist;
 }
+
 
 /** macro helper for calling the right function name */
 #define CASE_PLY_TYPE_CALL(FNAME,PLY_TYPE,CTYPE) \
 case PLY_TYPE:\
-   FNAME##CTYPE(ply,nelems,(CTYPE **) data);\
+   FNAME##CTYPE(ply,nelems,(CTYPE *) data);\
 	 break;
 
-void ply_get_vertices(PlyFile * ply, int nelems, int datatype, void ** data)
+void ply_get_vertices(PlyFile * ply, int nelems, int datatype, void * data)
 {
 	switch(datatype){
 		CASE_PLY_TYPE_CALL(ply_get_vertices_,PLY_FLOAT,float)
@@ -713,10 +705,9 @@ void ply_get_vertices(PlyFile * ply, int nelems, int datatype, void ** data)
 	}
 }
 
-void ply_get_vertices_float(PlyFile * ply, int nelems, float ** data)
+void ply_get_vertices_float(PlyFile * ply, int nelems, float * data)
 {
 	int j;
-  PlyVertex * plyvertex;
 	char * elem_name = "vertex";
 
 	PlyProperty vert_props[] = { /* list of property information for a vertex */
@@ -732,7 +723,7 @@ void ply_get_vertices_float(PlyFile * ply, int nelems, float ** data)
 	/* grab all the vertex elements */
 	for (j = 0; j < nelems; j++) {
 		/* grab and element from the file */
-		ply_get_element (ply, (void *) data[j]);
+		ply_get_element (ply, (void *) &(data[j*3]));
 
 		/* print out vertex x,y,z for debugging */
 		//printf ("vertex: %g %g %g\n", data[j][0], data[j][1], data[j][2]);
@@ -755,7 +746,6 @@ void ply_get_vertex_normals(PlyFile * ply, int nelems, int datatype, void ** dat
 void ply_get_vertex_normals_float(PlyFile * ply, int nelems, float ** data)
 {
 	int j;
-  PlyVertex * plyvertex;
 	char * elem_name = "vertex";
 	int start;
 	float norm;

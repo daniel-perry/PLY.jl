@@ -162,9 +162,10 @@ extern char *my_alloc();
  * output:
  * @param nelems - number of vertex elements
  * @param nprops - total properties available related to the vertex elements
+ * @param datatype - type of vertex elements
  * @return list of PlyProperty objects detailing property types, etc.
  */
-extern PlyProperty ** ply_get_vertex_properties(PlyFile * ply, int * nelems, int * nprops);
+extern PlyProperty ** ply_get_vertex_properties(PlyFile * ply, int * nelems, int * nprops, int * datatype);
 
 /**
  * input:
@@ -173,8 +174,8 @@ extern PlyProperty ** ply_get_vertex_properties(PlyFile * ply, int * nelems, int
  * output:
  * @param data - pointer to memory to fill with vertex data, should have dimensions (nelem x dim)
  */
-extern void ply_get_vertices(PlyFile * ply, int nelems, int datatype, void ** data);
-extern void ply_get_vertices_float(PlyFile * ply, int nelems, float ** data);
+extern void ply_get_vertices(PlyFile * ply, int nelems, int datatype, void * data);
+extern void ply_get_vertices_float(PlyFile * ply, int nelems, float * data);
 extern void ply_get_vertex_normals(PlyFile * ply, int nelems, int datatype, void ** data);
 extern void ply_get_vertex_normals_float(PlyFile * ply, int nelems, float ** data);
 

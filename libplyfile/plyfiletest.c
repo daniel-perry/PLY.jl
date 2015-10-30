@@ -298,7 +298,9 @@ read_test2()
   printf ("version %f\n", version);
   printf ("type %d\n", file_type);
 
-	plist = ply_get_vertex_properties(ply, &nelems, &nprops);
+	plist = ply_get_vertex_properties(ply, &nelems, &nprops, &datatype);
+
+	printf("nelems: %d, nprops: %d, datatype: %d\n", nelems, nprops, datatype);
 
 	printf("i: name, external_type, internal_type, offset; is_list, count_external, count_internal, count_offset");
 	for (j=0; j<nprops; ++j) {
