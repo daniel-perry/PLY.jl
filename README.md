@@ -9,10 +9,10 @@ Note that the PLY library that the julia code interfaces with is contained withi
 
 To install
 
-* build and install libply.so , contained within the libply subfolder.
+* build and install libply.so , contained within the libplyfile subfolder.
 
-> mkdir PLY.jl/libply/build
-> cd PLY.jl/libply/build
+> mkdir PLY.jl/libplyfile/build
+> cd PLY.jl/libplyfile/build
 > cmake -DBUILD_SHARED_LIBS=ON ../
 > make
 > sudo make install
