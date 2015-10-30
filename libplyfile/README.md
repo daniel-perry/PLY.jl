@@ -3,10 +3,14 @@
 This is a simple c library downloaded from here:
 http://paulbourke.net/dataformats/ply/
 
-Which contain the following copyright statement (note the permission to use, copy, modify, and distribute).
+Which contains the following copyright statement (note the permission to use, copy, modify, and distribute).
 I've also copied the copyright statement unchanged into LICENSE.txt
-This code has only been slightly modified to compile on my system and then a CMakeLists.txt file added which organizes the code into a library called "libply.a" and a test executable called "plytest".
-CMake allows you to build the library as either a static (default) or dynamic library, as needed.
+
+This code has only been slightly modified: 
+* some minor changes to compile on my system 
+* added a CMakeLists.txt file added which organizes the code into a library called "libply.a" and a test executable called "plytest".
+* CMake allows you to build the library as either a static (default) or dynamic library, as needed.
+* I've also added a more straightforward interface to read vertices and vertex normals (this is what the julia interface uses).
 
 
 Header from source files:
