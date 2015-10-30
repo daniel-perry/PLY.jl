@@ -1,4 +1,4 @@
-NOTE that the contents of the libply folder contains it's own separate license and copyright notice, the below noice applys to all contents except what is in the libply directory.
+NOTE that the contents of the libplyfile folder contains it's own separate license and copyright notice, the below notice and license applys to all contents except what is in the libplyfile directory.
 
 The MIT License (MIT)
 
