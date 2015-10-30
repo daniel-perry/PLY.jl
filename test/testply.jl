@@ -1,6 +1,6 @@
 using PLY
 
-fn = "facemodel.ply"
+fn = "../libplyfile/facemodel.ply"
 
 ply,nelems,elem_names,file_type,version = plyopen(fn)
 

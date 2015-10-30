@@ -724,9 +724,6 @@ void ply_get_vertices_float(PlyFile * ply, int nelems, float * data)
 	for (j = 0; j < nelems; j++) {
 		/* grab and element from the file */
 		ply_get_element (ply, (void *) &(data[j*3]));
-
-		/* print out vertex x,y,z for debugging */
-		//printf ("vertex: %g %g %g\n", data[j][0], data[j][1], data[j][2]);
 	}
 
 	ply_reset_property (ply, elem_name, &vert_props[0]);

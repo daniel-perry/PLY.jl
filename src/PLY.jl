@@ -19,7 +19,6 @@ function plyopen(fn::ASCIIString)
 	push!(elem_names[1], "testtesttest")
 	push!(elem_names[2], "testtesttest")
 
-	println(typeof(elem_names))
 	file_type = zeros(Int32,1)
 	version = [0.0f0]
 	ply = ccall( (:ply_open_for_reading, "libplyfile"), 
@@ -48,8 +47,8 @@ function plygetvertices(ply::Ptr{Void}, nelems, datatype, data::Array{Float32,2}
 
 	ccall( (:ply_get_vertices, "libplyfile"),
 	       Void,
-				 (Ptr{Void}, Int32, Int32, Array{Float32,2}),
-				 ply, nelems, datatype, data )
+				 (Ptr{Void}, Int32, Int32, Ptr{Float32}),
+				 ply, nelems, datatype, pointer(data) )
 end
 
 function plygetvertexnormals(ply::Ptr{Void}, nelems, datatype, data::Array{Float32,2})
@@ -58,8 +57,8 @@ function plygetvertexnormals(ply::Ptr{Void}, nelems, datatype, data::Array{Float
 
 	ccall( (:ply_get_vertex_normals, "libplyfile"),
 	       Void,
-				 (Ptr{Void}, Int32, Int32, Array{Float32,2}),
-				 ply, nelems, datatype, data )
+				 (Ptr{Void}, Int32, Int32, Ptr{Float32}),
+				 ply, nelems, datatype, pointer(data) )
 end
 
 
