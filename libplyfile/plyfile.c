@@ -734,7 +734,7 @@ void ply_get_vertices_float(PlyFile * ply, int nelems, float * data)
 	ply_reset_property (ply, elem_name, &vert_props[2]);
 }
 
-void ply_get_vertex_normals(PlyFile * ply, int nelems, int datatype, void ** data)
+void ply_get_vertex_normals(PlyFile * ply, int nelems, int datatype, void * data)
 {
 	switch(datatype){
 		CASE_PLY_TYPE_CALL(ply_get_vertex_normals_,PLY_FLOAT,float)
@@ -743,7 +743,7 @@ void ply_get_vertex_normals(PlyFile * ply, int nelems, int datatype, void ** dat
 	}
 }
 
-void ply_get_vertex_normals_float(PlyFile * ply, int nelems, float ** data)
+void ply_get_vertex_normals_float(PlyFile * ply, int nelems, float * data)
 {
 	int j;
 	char * elem_name = "vertex";
@@ -763,7 +763,7 @@ void ply_get_vertex_normals_float(PlyFile * ply, int nelems, float ** data)
 	/* grab all the vertex elements */
 	for (j = 0; j < nelems; j++) {
 		/* grab and element from the file */
-		ply_get_element (ply, (void *) data[j]);
+		ply_get_element (ply, (void *) &(data[j*3]));
 
 		/* print out vertex x,y,z for debugging */
 		//printf ("vertex normal: %g %g %g \n", data[j][0], data[j][1], data[j][2]);

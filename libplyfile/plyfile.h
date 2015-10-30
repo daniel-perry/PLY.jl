@@ -176,8 +176,8 @@ extern PlyProperty ** ply_get_vertex_properties(PlyFile * ply, int * nelems, int
  */
 extern void ply_get_vertices(PlyFile * ply, int nelems, int datatype, void * data);
 extern void ply_get_vertices_float(PlyFile * ply, int nelems, float * data);
-extern void ply_get_vertex_normals(PlyFile * ply, int nelems, int datatype, void ** data);
-extern void ply_get_vertex_normals_float(PlyFile * ply, int nelems, float ** data);
+extern void ply_get_vertex_normals(PlyFile * ply, int nelems, int datatype, void * data);
+extern void ply_get_vertex_normals_float(PlyFile * ply, int nelems, float * data);
 
 
 /*** standard ply routines ***/

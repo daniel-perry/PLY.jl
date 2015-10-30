@@ -288,8 +288,8 @@ read_test2()
 	float * vertices;
 	float * normals;
 	int datatype;
-	void ** data;
-	float ** floatdata;
+	void * data;
+	float * floatdata;
 
   /* open a PLY file for reading */
   ply = ply_open_for_reading("facemodel", &nelems, &elist, &file_type, &version);
@@ -328,16 +328,14 @@ read_test2()
 		}
 
 		if(datatype == PLY_FLOAT){
-			floatdata = (float **) malloc(sizeof(float*)*nelems);
-			for(j=0;j<nelems; ++j){
-				floatdata[j] = (float *) malloc(sizeof(float)*3);
-			}
-			data = (void **) floatdata;
+			
+			floatdata = (float *) malloc(sizeof(float)*nelems*3);
+			data = (void *) floatdata;
 			ply_get_vertices(ply, nelems, datatype, data);
 
 			printf("first 10 elements..\n");
 			for(j=0;j<10;++j){
-				printf("%d: %f,%f,%f\n",j,floatdata[j][0],floatdata[j][1],floatdata[j][2]);
+				printf("%d: %f,%f,%f\n",j,floatdata[3*j+0],floatdata[3*j+1],floatdata[3*j+2]);
 			}
 		}
 
@@ -354,16 +352,13 @@ read_test2()
 		}
 
 		if(datatype == PLY_FLOAT){
-			floatdata = (float **) malloc(sizeof(float*)*nelems);
-			for(j=0;j<nelems; ++j){
-				floatdata[j] = (float *) malloc(sizeof(float)*3);
-			}
-			data = (void **) floatdata;
+			floatdata = (float *) malloc(sizeof(float)*nelems*3);
+			data = (void *) floatdata;
 			ply_get_vertex_normals(ply, nelems, datatype, data);
 
 			printf("first 10 elements..\n");
 			for(j=0;j<10;++j){
-				printf("%d: %f,%f,%f\n",j,floatdata[j][0],floatdata[j][1],floatdata[j][2]);
+				printf("%d: %f,%f,%f\n",j,floatdata[3*j+0],floatdata[3*j+1],floatdata[3*j+2]);
 			}
 		}
 
